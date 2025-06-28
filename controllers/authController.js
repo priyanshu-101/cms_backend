@@ -61,7 +61,27 @@ const logout = async (req, res) => {
     }
 };
 
+const getMe = async (req, res) => {
+  try {
+    const user = req.user.toObject();
+    
+    res.json({
+      success: true,
+      data: {
+        user
+      }
+    });
+  } catch (error) {
+    console.error('Get me error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+};
+
 module.exports = {
     loginUser,
-    logout
+    logout,
+    getMe
 };
