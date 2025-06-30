@@ -115,7 +115,56 @@ const updateBatch = async (req, res) => {
     }
 }
 
+const deleteBatch = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedBatch = await Batch.findByIdAndDelete(id);
+        if (!deletedBatch) {
+            return res.status(404).json({
+                success: false,
+                message: 'Batch not found'
+            });
+        }
+        res.status(200).json({
+            success: true,
+            message: 'Batch deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting batch:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+}
+
+const getBatchById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const batch = await Batch.findById(id);
+        if (!batch) {
+            return res.status(404).json({
+                success: false,
+                message: 'Batch not found'
+            });
+        }
+        res.status(200).json({
+            success: true,
+            data: batch
+        });
+    } catch (error) {
+        console.error('Error fetching batch by ID:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+}
+
+
 module.exports = {
+    getBatchById,
+    deleteBatch,
     updateBatch,
     getBatches,
     createBatch,
