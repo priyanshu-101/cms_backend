@@ -72,7 +72,57 @@ const getTeacherById = async (req, res) => {
     }
 }
 
+const updateTeacher = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { username, email, firstName, lastName, phone, subjects } = req.body;
+
+        const updatedTeacher = await user.findByIdAndUpdate(id, { username, email, firstName, lastName, phone, subjects }, { new: true }).select('-password');
+        if (!updatedTeacher) {
+            return res.status(404).json({
+                success: false,
+                message: 'Teacher not found'
+            });
+        }
+        res.status(200).json({
+            success: true,
+            data: updatedTeacher
+        });
+    } catch (error) {
+        console.error('Error updating teacher:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+}
+
+const deleteTeacher = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedTeacher = await user.findByIdAndDelete(id);
+        if (!deletedTeacher) {
+            return res.status(404).json({
+                success: false,
+                message: 'Teacher not found'
+            });
+        }
+        res.status(200).json({
+            success: true,
+            message: 'Teacher deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting teacher:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+}
+
 module.exports = {
+    deleteTeacher,
+    updateTeacher,
     getTeacherById,
     getteacher,
     createTeacher
