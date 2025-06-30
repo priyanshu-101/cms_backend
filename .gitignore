@@ -41,3 +41,7 @@ pids
 
 # Other
 .idea/
+
+.env.local
+.env.development.local
+.env
