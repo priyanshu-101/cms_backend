@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const connectDB = require('./config/database');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');    
+const batchRoutes = require('./routes/batch');
 
 dotenv.config();
 const app = express();
@@ -19,6 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/batches', batchRoutes);
 
 // Connect to MongoDB
 connectDB();
