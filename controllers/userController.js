@@ -1,5 +1,5 @@
 const user = require('../models/user');
-const { generateAccessToken, generateRefreshToken } = require('../utils/tokenUtils');   
+const { ROLES } = require('../config/constants');
 
 const getteacher = async (req, res) => {
     try {
@@ -23,6 +23,38 @@ const getteacher = async (req, res) => {
     }
 }
 
+const createTeacher = async (req, res) => {
+    try {
+        const { username, email, password, firstName, lastName, phone, subjects } = req.body;
+
+        const newTeacher = new user({
+            username,
+            email,
+            password, 
+            role: ROLES.TEACHER, 
+            firstName,
+            lastName,
+            phone,
+            subjects
+        });
+
+        await newTeacher.save();
+
+        res.status(201).json({
+            success: true,
+            message: 'Teacher created successfully',
+            data: newTeacher
+        });
+    } catch (error) {
+        console.error('Error creating teacher:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+};
+
 module.exports = {
     getteacher,
+    createTeacher
 }
