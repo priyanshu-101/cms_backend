@@ -1,4 +1,3 @@
-
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const { ROLES } = require('../config/constants');
@@ -69,7 +68,18 @@ userSchema.pre('save', async function(next) {
 });
 
 userSchema.methods.comparePassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  try {
+    console.log('Comparing passwords...');
+    console.log('Candidate password length:', candidatePassword ? candidatePassword.length : 0);
+    console.log('Stored password hash length:', this.password ? this.password.length : 0);
+    
+    const result = await bcrypt.compare(candidatePassword, this.password);
+    console.log('Password comparison result:', result);
+    return result;
+  } catch (error) {
+    console.error('Error in comparePassword:', error);
+    throw error;
+  }
 };
 
 userSchema.virtual('fullName').get(function() {
