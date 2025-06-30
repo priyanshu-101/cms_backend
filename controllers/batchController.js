@@ -91,7 +91,32 @@ const getBatchesForTeacher = async (req, res) => {
     }
 }
 
+const updateBatch = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { batchName, subject, grade, timing, assignedTeacherId } = req.body;
+        const updatedBatch = await Batch.findByIdAndUpdate(id, { batchName, subject, grade, timing, assignedTeacherId }, { new: true });
+        if (!updatedBatch) {
+            return res.status(404).json({
+                success: false,
+                message: 'Batch not found'
+            });
+        }
+        res.status(200).json({
+            success: true,
+            data: updatedBatch
+        });
+    } catch (error) {
+        console.error('Error updating batch:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+}
+
 module.exports = {
+    updateBatch,
     getBatches,
     createBatch,
     getBatchesForTeacher
