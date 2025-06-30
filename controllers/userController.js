@@ -54,7 +54,26 @@ const createTeacher = async (req, res) => {
     }
 };
 
+const getTeacherById = async (req, res) => {
+    try {
+        const teacher = await user.findById(req.params.id).select('-password');
+        if (!teacher) {
+            return res.status(404).json({
+                success: false,
+                message: 'Teacher not found'
+            });
+        }
+        res.status(200).json({
+            success: true,
+            data: teacher
+        });
+    } catch (error) {
+        console.error('Error fetching teacher by ID:', error);
+    }
+}
+
 module.exports = {
+    getTeacherById,
     getteacher,
     createTeacher
 }
