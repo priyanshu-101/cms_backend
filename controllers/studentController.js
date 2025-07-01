@@ -100,4 +100,29 @@ const getStudentsByBatchId = async (req, res) => {
     }
 }
 
-module.exports = { createStudent, getStudentsByBatchId };
+const getStudentById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const student = await Student.findById(id);
+        if (!student) {
+            return res.status(404).json({
+                success: false,
+                message: 'Student not found'
+            });
+        }
+        res.status(200).json({
+            success: true,
+            message: 'Student retrieved successfully',
+            data: student
+        });
+    } catch (error) {
+        console.error('Error getting student by ID:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+}
+
+
+module.exports = { createStudent, getStudentsByBatchId, getStudentById };
