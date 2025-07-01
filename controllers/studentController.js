@@ -48,4 +48,56 @@ const createStudent = async (req, res) => {
     }
 }
 
-module.exports = { createStudent };
+const getStudentsByBatchId = async (req, res) => {
+    try {
+        const { batchId } = req.params;
+        
+        if (!batchId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Batch ID is required'
+            });
+        }
+        
+
+        if (!mongoose.Types.ObjectId.isValid(batchId)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid batch ID format'
+            });
+        }
+        
+        const batch = await Batch.findById(batchId);
+        if (!batch) {
+            return res.status(404).json({
+                success: false,
+                message: 'Batch not found'
+            });
+        }
+
+        const students = await Student.find({ 
+            batchIds: batchId,
+            isActive: true 
+        }).select('-password');         
+        res.status(200).json({
+            success: true,
+            message: 'Students retrieved successfully',
+            data: {
+                batch: {
+                    _id: batch._id,
+                    name: batch.name
+                },
+                students: students,
+                count: students.length
+            }
+        });
+    } catch (error) {
+        console.error('Error getting students by batch ID:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+}
+
+module.exports = { createStudent, getStudentsByBatchId };
