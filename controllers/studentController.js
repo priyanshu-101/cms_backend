@@ -213,4 +213,22 @@ const updateStudent = async (req, res) => {
     }
 }
 
-module.exports = { createStudent, getStudentsByBatchId, getStudentById, removeStudentFromBatch, updateStudent};
+const getAllStudents = async (req, res) => {
+    try {
+        const students = await Student.find();
+        res.status(200).json({
+            success: true,
+            message: 'Students retrieved successfully',
+            data: students
+        });
+    }
+    catch (error) {
+        console.error('Error getting all students:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+}
+
+module.exports = { createStudent, getStudentsByBatchId, getStudentById, removeStudentFromBatch, updateStudent, getAllStudents};
