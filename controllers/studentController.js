@@ -124,5 +124,74 @@ const getStudentById = async (req, res) => {
     }
 }
 
+const removeStudentFromBatch = async (req, res) => {
+    try {
+        const { studentId, batchId } = req.params;
+        
+        if (!studentId || !batchId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Student ID and Batch ID are required'
+            });
+        }
+        
+        if (!mongoose.Types.ObjectId.isValid(studentId) || !mongoose.Types.ObjectId.isValid(batchId)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid Student ID or Batch ID format'
+            });
+        }
+        
+        const student = await Student.findById(studentId);
+        if (!student) {
+            return res.status(404).json({
+                success: false,
+                message: 'Student not found'
+            });
+        }
+        
+        const batch = await Batch.findById(batchId);
+        if (!batch) {
+            return res.status(404).json({
+                success: false,
+                message: 'Batch not found'
+            });
+        }
+        
+        if (!student.batchIds.includes(batchId)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Student is not enrolled in this batch'
+            });
+        }
+        
+        const updatedStudent = await Student.findByIdAndUpdate(
+            studentId,
+            { 
+                $pull: { batchIds: batchId },
+                updatedAt: Date.now()
+            },
+            { new: true }
+        ).select('-password');
+        
+        res.status(200).json({
+            success: true,
+            message: 'Student removed from batch successfully',
+            data: {
+                student: updatedStudent,
+                removedBatch: {
+                    _id: batch._id,
+                    name: batch.name
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error removing student from batch:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+}
 
-module.exports = { createStudent, getStudentsByBatchId, getStudentById };
+module.exports = { createStudent, getStudentsByBatchId, getStudentById, removeStudentFromBatch };
