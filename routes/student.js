@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { createStudent, getStudentsByBatchId, getStudentById, removeStudentFromBatch, updateStudent, getAllStudents } = require('../controllers/studentController');
+const { createStudent, getStudentsByBatchId, getStudentById, removeStudentFromBatch, updateStudent, getAllStudents, deleteStudent } = require('../controllers/studentController');
 const { authMiddleware } = require('../middleware/auth');
 const { requireAdmin } = require('../middleware/roleMiddleware');
 
@@ -11,5 +11,6 @@ router.get('/:id', authMiddleware, getStudentById);
 router.delete('/:studentId/batch/:batchId', authMiddleware, requireAdmin, removeStudentFromBatch);
 router.put('/:id', authMiddleware, requireAdmin, updateStudent);
 router.get('/', authMiddleware, requireAdmin, getAllStudents);
+router.delete('/:id', authMiddleware, requireAdmin, deleteStudent);
 
-module.exports = router;
+module.exports = router;    
