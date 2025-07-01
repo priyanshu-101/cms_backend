@@ -194,4 +194,23 @@ const removeStudentFromBatch = async (req, res) => {
     }
 }
 
-module.exports = { createStudent, getStudentsByBatchId, getStudentById, removeStudentFromBatch };
+const updateStudent = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, email, password, phone, address, grade, batchIds, enrollmentDate } = req.body;
+        const student = await Student.findByIdAndUpdate(id, { name, email, password, phone, address, grade, batchIds, enrollmentDate }, { new: true });
+        res.status(200).json({
+            success: true,
+            message: 'Student updated successfully',
+            data: student
+        });
+    } catch (error) {
+        console.error('Error updating student:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+}
+
+module.exports = { createStudent, getStudentsByBatchId, getStudentById, removeStudentFromBatch, updateStudent};
