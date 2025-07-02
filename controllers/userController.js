@@ -1,9 +1,9 @@
-const user = require('../models/user');
+const User = require('../models/user');
 const { ROLES } = require('../config/constants');
 
 const getteacher = async (req, res) => {
     try {
-        const teachers = await user.find({ role: 'teacher' }).select('-password');
+        const teachers = await User.find({ role: 'teacher' }).select('-password');
         if (!teachers || teachers.length === 0) {
             return res.status(404).json({
                 success: false,
@@ -27,7 +27,7 @@ const createTeacher = async (req, res) => {
     try {
         const { username, email, password, firstName, lastName, phone, subjects } = req.body;
 
-        const newTeacher = new user({
+        const newTeacher = new User({
             username,
             email,
             password, 
@@ -56,7 +56,7 @@ const createTeacher = async (req, res) => {
 
 const getTeacherById = async (req, res) => {
     try {
-        const teacher = await user.findById(req.params.id).select('-password');
+        const teacher = await User.findById(req.params.id).select('-password');
         if (!teacher) {
             return res.status(404).json({
                 success: false,
@@ -77,7 +77,7 @@ const updateTeacher = async (req, res) => {
         const { id } = req.params;
         const { username, email, firstName, lastName, phone, subjects } = req.body;
 
-        const updatedTeacher = await user.findByIdAndUpdate(id, { username, email, firstName, lastName, phone, subjects }, { new: true }).select('-password');
+        const updatedTeacher = await User.findByIdAndUpdate(id, { username, email, firstName, lastName, phone, subjects }, { new: true }).select('-password');
         if (!updatedTeacher) {
             return res.status(404).json({
                 success: false,
@@ -100,7 +100,7 @@ const updateTeacher = async (req, res) => {
 const deleteTeacher = async (req, res) => {
     try {
         const { id } = req.params;
-        const deletedTeacher = await user.findByIdAndDelete(id);
+        const deletedTeacher = await User.findByIdAndDelete(id);
         if (!deletedTeacher) {
             return res.status(404).json({
                 success: false,
