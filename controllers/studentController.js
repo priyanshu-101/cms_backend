@@ -76,10 +76,25 @@ const getStudentsByBatchId = async (req, res) => {
             });
         }
 
+        // Caching logic
+        const cacheKey = `students:batch:${batchId}`;
+        const cachedData = await redisClient.get(cacheKey);
+        if (cachedData) {
+            return res.status(200).json({ source: 'cache', data: JSON.parse(cachedData) });
+        }
+
         const students = await Student.find({ 
             batchIds: batchId,
             isActive: true 
         }).select('-password');         
+        await redisClient.setEx(cacheKey, 3600, JSON.stringify({
+            batch: {
+                _id: batch._id,
+                name: batch.name
+            },
+            students: students,
+            count: students.length
+        }));
         res.status(200).json({
             success: true,
             message: 'Students retrieved successfully',
@@ -104,6 +119,11 @@ const getStudentsByBatchId = async (req, res) => {
 const getStudentById = async (req, res) => {
     try {
         const { id } = req.params;
+        const cacheKey = `student:${id}`;
+        const cachedData = await redisClient.get(cacheKey);
+        if (cachedData) {
+            return res.status(200).json({ source: 'cache', data: JSON.parse(cachedData) });
+        }
         const student = await Student.findById(id);
         if (!student) {
             return res.status(404).json({
@@ -111,6 +131,7 @@ const getStudentById = async (req, res) => {
                 message: 'Student not found'
             });
         }
+        await redisClient.setEx(cacheKey, 3600, JSON.stringify(student));
         res.status(200).json({
             success: true,
             message: 'Student retrieved successfully',
@@ -174,7 +195,6 @@ const removeStudentFromBatch = async (req, res) => {
             },
             { new: true }
         ).select('-password');
-        
         res.status(200).json({
             success: true,
             message: 'Student removed from batch successfully',
