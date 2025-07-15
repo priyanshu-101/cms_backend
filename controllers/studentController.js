@@ -1,6 +1,7 @@
 const Student = require('../models/Student');
 const Batch = require('../models/Batch');
 const mongoose = require('mongoose');
+const redisClient = require('../utils/redisClient');
 
 const createStudent = async (req, res) => {
     try {
@@ -215,21 +216,18 @@ const updateStudent = async (req, res) => {
 
 const getAllStudents = async (req, res) => {
     try {
-        const students = await Student.find();
-        res.status(200).json({
-            success: true,
-            message: 'Students retrieved successfully',
-            data: students
-        });
+        const cacheKey = 'students:all';
+        const cachedData = await redisClient.get(cacheKey);
+        if (cachedData) {
+            return res.status(200).json({ source: 'cache', data: JSON.parse(cachedData) });
+        }
+        const students = await Student.find().select('-password -__v');
+        await redisClient.setEx(cacheKey, 3600, JSON.stringify(students));
+        return res.status(200).json({ source: 'db', data: students });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
-    catch (error) {
-        console.error('Error getting all students:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Internal server error'
-        });
-    }
-}
+};
 
 const deleteStudent = async (req, res) => {
     try {
